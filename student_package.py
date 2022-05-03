@@ -73,3 +73,36 @@ def PID_RT(SP,PV,Man,MVMan,MVFF,Kc,Ti,Td,alpha,Ts,MVMin,MVMax,MV,MVP,MVI,MVD,E,M
 
 
 #-----------------------------------
+def LeadLag_RT(MV, Kp, Tlead, Tlag, Ts, PV, PVInit=0, method=" EBD"):
+    
+    """Help on function LeadLag_RT in module package_DBR Advanced:
+
+        LeadLag RT(MV, Kp, Tlead, Tlag, Ts, PV, PVInit=0, method=" EBD")
+        
+        The function “LeadLag RT” needs to be included in a ”for or while loop”.
+
+        :MV: input vector
+        :Kp: process gain
+        :Tlead: lead time constant [s]
+        :Tlag: lag time constant [s]
+        :Ts:sampling period [s]
+        :Pv: output vector
+        :PVInit: (optional: default value is 8)
+        :method: discretisation method (optional: default value is "EBD')
+                EBD: Euler Backward difference
+                EFD: Euler Forward difference
+                TRAP: Trapezoidal method
+
+        The function appends a value to the output vector "Pv".
+        The appended value is obtained from a recurrent equation that depends on the discretisation method.
+"""
+    # MV[k+1] is MV[-1] and MV[k] is MV[-2]
+    K = Ts/Tlag
+    #EBD
+    if len(PV)==0:
+        PV.append(PVInit)
+    else :
+        PV.append(PV[-1]*(1/(1+K))+((Kp*K)/(1+K))*((1+Tlead/Ts)*MV[-1]-(Tlead/Ts)*MV[-2]))
+
+
+#-----------------------------------
