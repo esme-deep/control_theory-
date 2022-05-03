@@ -47,11 +47,11 @@ def PID_RT(SP,PV,Man,MVMan,MVFF,Kc,Ti,Td,alpha,Ts,MVMin,MVMax,MV,MVP,MVI,MVD,E,M
     Note that saturation of "MV" within the limits [MVMin MVMax] is implemented with anti wind-up.
     """
     # MV[k+1] is MV[-1] and MV[k] is MV[-2]
-    if Man == False :
-        if len(PV)==0 :
+    if len(PV)==0 :
             E.append(SP[-1]-PVInit)
-        else :
-            E.append(SP[-1]-PV[-1])
+    else :
+        E.append(SP[-1]-PV[-1])
+    if Man[-1] == False :
         #proportional part 
         MVP.append(Kc*E[-1])
         #integrating part
@@ -70,6 +70,13 @@ def PID_RT(SP,PV,Man,MVMan,MVFF,Kc,Ti,Td,alpha,Ts,MVMin,MVMax,MV,MVP,MVI,MVD,E,M
         else :
             MVD.append((Tfd/(Tfd+Ts))*MVD[-1]+(Kc*Td/(Tfd+Ts))*(E[-1]-E[-2]))
         MV.append(MVP[-1]+MVI[-1]+MVD[-1])
+    else : 
+        MVI.append(0)
+        MVP.append(0)
+        MVD.append(0)
+        if len(MVMan)==0 :
+            MV.append(0) 
+        else : MV.append(MVMan[-1])
 
 
 #-----------------------------------
