@@ -79,6 +79,9 @@ def PID_RT(SP,PV,Man,MVMan,MVFF,Kc,Ti,Td,alpha,Ts,MVMin,MVMax,MV,MVP,MVI,MVD,E,M
             MV.append(0) 
         else : MV.append(MVMan[-1])
 
+    if ManFF :
+        MV = MV[-1] +MVFF[-1]
+
 
 #-----------------------------------
 def LeadLag_RT(MV, Kp, Tlead, Tlag, Ts, PV, PVInit=0, method=" EBD"):
