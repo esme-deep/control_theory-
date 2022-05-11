@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from IPython.display import display, clear_output
 import package_DBR
 from package_DBR import myRound, SelectPath_RT, Delay_RT, FO_RT, FOPDT, SOPDT, FOPDT_cost, SOPDT_cost, Process, Bode
+import math
 
 #-----------------------------------
 def PID_RT(SP,PV,Man,MVMan,MVFF,Kc,Ti,Td,alpha,Ts,MVMin,MVMax,MV,MVP,MVI,MVD,E,ManFF=False,PVInit=0, method ='EBD_EBD'):
@@ -113,3 +114,30 @@ def LeadLag_RT(MV, Kp, Tlead, Tlag, Ts, PV, PVInit=0, method=" EBD"):
 
 
 #-----------------------------------
+def IMCTuning(Kp, Tlag1, Tlag2=0, theta=0, gamma=0, process="FOPDT", model="classic", Tg=0, Tu=0, a=0, t1=0, t2=0):
+    
+    Tc = gamma * Tlag1
+
+    if (process == "FOPDT"):
+        if (model == "broida_simple"):
+            Tlag1 = Tg
+            theta = Tu
+        elif (model == "broida_complex"):
+            Tlag1 = 5.5*(t2 - t1)
+            theta = (2.8*t1) - (1.8*t2)
+
+        Kc = ((Tlag1 + theta/2) / (Tc + theta/2)) / Kp
+        Ti = Tlag1 + theta/2
+        Td = (Tlag1*theta) / (2*Tlag1 + theta)
+
+    elif (process == "SOPDT"):
+        if (model == "vdG"):
+            Tlag1 = Tg * ((3*a*math.exp(1) - 1) / (1 + a*math.exp(1)))
+            Tlag2 = Tg * ((1 - a*math.exp(1)) / (1 + a*math.exp(1)))
+            theta = Tu - ((Tlag1*Tlag2) / (Tlag1 + 3*Tlag2))
+
+        Kc = ((Tlag1 + Tlag2) / (Tc + theta)) / Kp
+        Ti = Tlag1 + Tlag2
+        Td = (Tlag1*Tlag2) / (Tlag1 + Tlag2)
+
+    return Kc, Ti, Td
