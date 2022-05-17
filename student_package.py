@@ -154,7 +154,7 @@ box3 = Checkbox(False, description='CPLFF')
 box4= Checkbox(False, description='CPLnoFF')
 
 def Scenareo_Box():
-    """ This function will help us make the chpoce of the scenareo please unckeck a simulation before checking another"""
+    """ This function will help us make the choice of the scenareo please unckeck a simulation before checking another"""
 
 
     
@@ -176,15 +176,24 @@ def Scenareo_Box():
     box4.observe(changed)
 
 def Show_scenareo():
+    """ This function is MANDATORY to apply the scenareo choice.. it also make us sure of the choice made"""
+    
     if (box1.value and not(box2.value)and not(box3.value)and not(box4.value)):
         print("You have chosen an open loop with no feedforward")
+        setting = "OPLnoFF"
     elif (box2.value and not(box1.value)and not(box3.value)and not(box4.value)):
         print("You have chosen an open loop with  feedforward")
+        setting = "OPLFF"
     elif (box3.value and not(box2.value)and not(box1.value)and not(box4.value)):
         print("You have chosen an closed loop with  feedforward")
+        setting = "CPLFF"
     elif (box4.value and not(box2.value)and not(box3.value)and not(box1.value)):
         print("You have chosen an closed loop with no feedforward")
+        setting = "CPLnoFF"
     elif(not(box4.value) and not(box2.value)and not(box3.value)and not(box1.value)):
-        print("check a scenareo please")
+        print("check a scenareo please otherwise it's a default  OPLnoFF scenareo")
+        setting = "OPLnoFF"
     else :
-        print("PLEASE make sure you are checking one scenareo over the 4!")
+        print("PLEASE make sure you are checking one scenareo over the 4! otherwise it's a default OPLnoFF scenareo")
+        setting = "OPLnoFF"
+    return setting
