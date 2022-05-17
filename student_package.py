@@ -70,20 +70,39 @@ def PID_RT(SP,PV,Man,MVMan,MVFF,Kc,Ti,Td,alpha,Ts,MVMin,MVMax,MV,MVP,MVI,MVD,E,M
         if len(MVD)==0 and len(E)>1:
             MVD.append((Kc*Td/Tfd+Ts)*(E[-1]-E[-2]))
         elif len(E)== 1 :
-            MVD.append(0)
+            if len(MVD) !=0:
+                MVD.append((Tfd / (Tfd + Ts)) * MVD[-1] + ((Kc * Td) / (Tfd + Ts)) * (E[-1]))
+            else :
+                MVD.append((Kc * Td) / (Tfd + Ts) * (E[-1]))
         else :
             MVD.append((Tfd/(Tfd+Ts))*MVD[-1]+(Kc*Td/(Tfd+Ts))*(E[-1]-E[-2]))
-        MV.append(MVP[-1]+MVI[-1]+MVD[-1])
+        
     else : 
-        MVI.append(0)
-        MVP.append(0)
-        MVD.append(0)
-        if len(MVMan)==0 :
-            MV.append(0) 
-        else : MV.append(MVMan[-1])
+        if ManFF:
+            MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1] - MVFF[-1]
+        else:
+            MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1]
+
+   
 
     if ManFF :
-        MV = MV[-1] +MVFF[-1]
+        if MVP[-1]+MVI[-1]+MVD[-1]+MVFF[-1]>MVMax :
+            MVI[-1] = MVMax - MVP[-1] - MVD[-1] - MVFF[-1]
+            MV.append(MVMax)
+        elif MVP[-1]+MVI[-1]+MVD[-1]+MVFF[-1]<MVMin :
+            MVI[-1] = MVMin- MVP[-1] - MVD[-1] - MVFF[-1]
+            MV.append(MVMin)
+        else :
+            MV.append(MVP[-1]+MVI[-1]+MVD[-1]+MVFF[-1])
+    else :
+        if MVP[-1]+MVI[-1]+MVD[-1]>MVMax :
+            MVI[-1] = MVMax - MVP[-1] - MVD[-1]
+            MV.append(MVMax)
+        elif MVP[-1]+MVI[-1]+MVD[-1]<MVMin :
+            MVI[-1] = MVMin - MVP[-1] - MVD[-1] 
+            MV.append(MVMin)
+        else :
+            MV.append(MVP[-1]+MVI[-1]+MVD[-1])
 
 
 #-----------------------------------
@@ -150,11 +169,11 @@ def IMCTuning(Kp, Tlag1, Tlag2=0, theta=0, gamma=0, process="FOPDT", model="clas
 
 box1 = Checkbox(False, description='OPLnoFF')
 box2 = Checkbox(False, description='OPLFF')
-box3 = Checkbox(False, description='CPLFF')
-box4= Checkbox(False, description='CPLnoFF')
+box3 = Checkbox(False, description='CLPFF')
+box4= Checkbox(False, description='CLPnoFF')
 
-def Scenareo_Box():
-    """ This function will help us make the choice of the scenareo please unckeck a simulation before checking another"""
+def Scenario_Box():
+    """ This function will help us make the choice of the scenareo please uncheck a simulation before checking another"""
 
 
     
@@ -175,8 +194,8 @@ def Scenareo_Box():
     box3.observe(changed)
     box4.observe(changed)
 
-def Show_scenareo():
-    """ This function is MANDATORY to apply the scenareo choice.. it also make us sure of the choice made"""
+def Show_scenario():
+    """ This function is MANDATORY to apply the scenario choice.. it also make us sure of the choice made"""
     
     if (box1.value and not(box2.value)and not(box3.value)and not(box4.value)):
         print("You have chosen an open loop with no feedforward")
@@ -186,14 +205,14 @@ def Show_scenareo():
         setting = "OPLFF"
     elif (box3.value and not(box2.value)and not(box1.value)and not(box4.value)):
         print("You have chosen an closed loop with  feedforward")
-        setting = "CPLFF"
+        setting = "CLPFF"
     elif (box4.value and not(box2.value)and not(box3.value)and not(box1.value)):
         print("You have chosen an closed loop with no feedforward")
-        setting = "CPLnoFF"
+        setting = "CLPnoFF"
     elif(not(box4.value) and not(box2.value)and not(box3.value)and not(box1.value)):
-        print("check a scenareo please otherwise it's a default  OPLnoFF scenareo")
-        setting = "OPLnoFF"
+        print("check a scenario please otherwise it's a default  CLPnoFF scenareo")
+        setting = "CLPnoFF"
     else :
-        print("PLEASE make sure you are checking one scenareo over the 4! otherwise it's a default OPLnoFF scenareo")
-        setting = "OPLnoFF"
+        print("PLEASE make sure you are checking one scenario over the 4! otherwise it's a default CLPnoFF scenario")
+        setting = "CLPnoFF"
     return setting
