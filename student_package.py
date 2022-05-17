@@ -6,6 +6,9 @@ import package_DBR
 from package_DBR import myRound, SelectPath_RT, Delay_RT, FO_RT, FOPDT, SOPDT, FOPDT_cost, SOPDT_cost, Process, Bode
 import math
 
+from IPython.display import display
+from ipywidgets import Checkbox
+
 #-----------------------------------
 def PID_RT(SP,PV,Man,MVMan,MVFF,Kc,Ti,Td,alpha,Ts,MVMin,MVMax,MV,MVP,MVI,MVD,E,ManFF=False,PVInit=0, method ='EBD_EBD'):
     
@@ -144,3 +147,44 @@ def IMCTuning(Kp, Tlag1, Tlag2=0, theta=0, gamma=0, process="FOPDT", model="clas
         Td = (Tlag1*Tlag2) / (Tlag1 + Tlag2)
 
     return Kc, Ti, Td
+
+box1 = Checkbox(False, description='OPLnoFF')
+box2 = Checkbox(False, description='OPLFF')
+box3 = Checkbox(False, description='CPLFF')
+box4= Checkbox(False, description='CPLnoFF')
+
+def Scenareo_Box():
+    """ This function will help us make the chpoce of the scenareo please unckeck a simulation before checking another"""
+
+
+    
+    display(box1)
+    
+    display(box2)
+    
+    display(box3)
+    
+    display(box4)
+
+    def changed(b):
+        #print(b.owner.description)
+        pass
+        
+    box1.observe(changed)
+    box2.observe(changed)
+    box3.observe(changed)
+    box4.observe(changed)
+
+def Show_scenareo():
+    if (box1.value and not(box2.value)and not(box3.value)and not(box4.value)):
+        print("You have chosen an open loop with no feedforward")
+    elif (box2.value and not(box1.value)and not(box3.value)and not(box4.value)):
+        print("You have chosen an open loop with  feedforward")
+    elif (box3.value and not(box2.value)and not(box1.value)and not(box4.value)):
+        print("You have chosen an closed loop with  feedforward")
+    elif (box4.value and not(box2.value)and not(box3.value)and not(box1.value)):
+        print("You have chosen an closed loop with no feedforward")
+    elif(not(box4.value) and not(box2.value)and not(box3.value)and not(box1.value)):
+        print("check a scenareo please")
+    else :
+        print("PLEASE make sure you are checking one scenareo over the 4!")
