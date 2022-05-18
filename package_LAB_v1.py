@@ -60,7 +60,7 @@ def PID_RT(SP,PV,Man,MVMan,MVFF,Kc,Ti,Td,alpha,Ts,MVMin,MVMax,MV,MVP,MVI,MVD,E,M
     :Td: derivative time constant [s]
     :alpha: Tfd = alpha*Td where Tfd is the derivative filter time constant [s]
     :Ts: sampling period [s]
-    :MVMlin: minimum value for MV (used for saturation and anti wind-up)
+    :MVMin: minimum value for MV (used for saturation and anti wind-up)
     :MVMax: maximum value for MV (used for saturation and anti wind-up)
     :Mv: MV (or Manipulated Value) vector
     :MVP: MVP (or Propotional part of MV) vector
