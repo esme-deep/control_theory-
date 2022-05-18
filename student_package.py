@@ -51,58 +51,60 @@ def PID_RT(SP,PV,Man,MVMan,MVFF,Kc,Ti,Td,alpha,Ts,MVMin,MVMax,MV,MVP,MVI,MVD,E,M
     Note that saturation of "MV" within the limits [MVMin MVMax] is implemented with anti wind-up.
     """
     # MV[k+1] is MV[-1] and MV[k] is MV[-2]
+    if ManFF :
+        MVFF_v = MVFF[-1]
+    else :
+        MVFF_v =0
+
+    
     if len(PV)==0 :
             E.append(SP[-1]-PVInit)
     else :
         E.append(SP[-1]-PV[-1])
-    if Man[-1] == False :
-        #proportional part 
-        MVP.append(Kc*E[-1])
-        #integrating part
-        if len(MVI)==0:
-            MVI.append((Kc*Ts/Ti)*E[-1])
+    
+    #proportional part 
+    MVP.append(Kc*E[-1])
+    #integrating part
+    if len(MVI)==0:
+        MVI.append((Kc*Ts/Ti)*E[-1])
+    else :
+        MVI.append(MVI[-1]+(Kc*Ts/Ti)*E[-1])
+    
+    #derivating part 
+    Tfd = alpha*Td
+    
+    if len(MVD)==0 and len(E)>1:
+        MVD.append((Kc*Td/Tfd+Ts)*(E[-1]-E[-2]))
+    elif len(E)== 1 :
+        if len(MVD) !=0:
+            MVD.append((Tfd / (Tfd + Ts)) * MVD[-1] + ((Kc * Td) / (Tfd + Ts)) * (E[-1]))
         else :
-            MVI.append(MVI[-1]+(Kc*Ts/Ti)*E[-1])
-       
-        #derivating part 
-        Tfd = alpha*Td
-        
-        if len(MVD)==0 and len(E)>1:
-            MVD.append((Kc*Td/Tfd+Ts)*(E[-1]-E[-2]))
-        elif len(E)== 1 :
-            if len(MVD) !=0:
-                MVD.append((Tfd / (Tfd + Ts)) * MVD[-1] + ((Kc * Td) / (Tfd + Ts)) * (E[-1]))
-            else :
-                MVD.append((Kc * Td) / (Tfd + Ts) * (E[-1]))
-        else :
-            MVD.append((Tfd/(Tfd+Ts))*MVD[-1]+(Kc*Td/(Tfd+Ts))*(E[-1]-E[-2]))
-        
-    else : 
+            MVD.append((Kc * Td) / (Tfd + Ts) * (E[-1]))
+    else :
+        MVD.append((Tfd/(Tfd+Ts))*MVD[-1]+(Kc*Td/(Tfd+Ts))*(E[-1]-E[-2]))
+    
+    if Man[-1]:
         if ManFF:
-            MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1] - MVFF[-1]
+            MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1] 
+            
         else:
-            MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1]
+            MVI[-1] = MVMan[-1] - MVP[-1] - MVD[-1]- MVFF_v
+            
+        
+
 
    
-
-    if ManFF :
-        if MVP[-1]+MVI[-1]+MVD[-1]+MVFF[-1]>MVMax :
-            MVI[-1] = MVMax - MVP[-1] - MVD[-1] - MVFF[-1]
-            MV.append(MVMax)
-        elif MVP[-1]+MVI[-1]+MVD[-1]+MVFF[-1]<MVMin :
-            MVI[-1] = MVMin- MVP[-1] - MVD[-1] - MVFF[-1]
-            MV.append(MVMin)
-        else :
-            MV.append(MVP[-1]+MVI[-1]+MVD[-1]+MVFF[-1])
-    else :
-        if MVP[-1]+MVI[-1]+MVD[-1]>MVMax :
-            MVI[-1] = MVMax - MVP[-1] - MVD[-1]
-            MV.append(MVMax)
-        elif MVP[-1]+MVI[-1]+MVD[-1]<MVMin :
-            MVI[-1] = MVMin - MVP[-1] - MVD[-1] 
-            MV.append(MVMin)
-        else :
-            MV.append(MVP[-1]+MVI[-1]+MVD[-1])
+    MV_TEMP = MVP[-1] + MVI[-1] + MVD[-1] + MVFF_v
+    
+    if MV_TEMP >= MVMax:
+        MVI[-1] = MVMax - MVP[-1] - MVD[-1] - MVFF_v
+        MV_TEMP = MVMax
+        
+    if MV_TEMP <= MVMin:
+        MVI[-1] = MVMin - MVP[-1] - MVD[-1] - MVFF_v
+        MV_TEMP = MVMin
+                  
+    MV.append(MV_TEMP)
 
 
 #-----------------------------------
